@@ -1,8 +1,8 @@
-# 🚗 AutoDoc AI - Next-Generation Vehicle Intelligence Platform
+# 🚗 Carsor AI - Next-Generation Vehicle Intelligence Platform
 
 <div align="center">
 
-![AutoDoc AI Logo](https://img.shields.io/badge/AutoDoc%20AI-Vehicle%20Intelligence-orange?style=for-the-badge&logo=car&logoColor=white)
+![Carsor AI Logo](https://img.shields.io/badge/Carsor%20AI-Vehicle%20Intelligence-orange?style=for-the-badge&logo=car&logoColor=white)
 
 **Revolutionary AI-Powered Automotive Service Management Platform**
 
@@ -12,7 +12,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Google AI](https://img.shields.io/badge/Google%20AI-Gemini-4285F4?style=flat-square&logo=google)](https://ai.google.dev/)
 
-[🚀 Live Demo](#) • [📖 Documentation](#installation) • [🎯 Features](#key-features) • [🛠️ Installation](#installation)
+[� Diocumentation](#installation) • [🎯 Features](#key-features) • [🛠️ Installation](#installation)
 
 </div>
 
@@ -20,7 +20,7 @@
 
 ## 🌟 Overview
 
-AutoDoc AI represents the **future of automotive service management**, combining cutting-edge artificial intelligence with intuitive user experience to revolutionize how vehicle owners and service providers interact. Built with enterprise-grade architecture and powered by Google's Gemini AI, our platform delivers unprecedented accuracy in vehicle diagnostics and predictive maintenance.
+Carsor AI represents the **future of automotive service management**, combining cutting-edge artificial intelligence with intuitive user experience to revolutionize how vehicle owners and service providers interact. Built with enterprise-grade architecture and powered by Google's Gemini AI, our platform delivers unprecedented accuracy in vehicle diagnostics and predictive maintenance.
 
 ### 🎯 Mission Statement
 
@@ -58,9 +58,9 @@ AutoDoc AI represents the **future of automotive service management**, combining
 
 ## 🏆 Competitive Advantages
 
-### **AutoDoc AI vs Traditional Platforms**
+### **Carsor AI vs Traditional Platforms**
 
-| Feature | AutoDoc AI | Traditional Platforms | Advantage |
+| Feature | Carsor AI | Traditional Platforms | Advantage |
 |---------|------------|----------------------|-----------|
 | **AI Accuracy** | 98% diagnostic precision | 60-75% accuracy | **+23% improvement** |
 | **Response Time** | < 2 seconds | 5-15 minutes | **750% faster** |
@@ -70,7 +70,7 @@ AutoDoc AI represents the **future of automotive service management**, combining
 | **Cost Efficiency** | 40% reduction in service time | Standard rates | **Significant savings** |
 | **24/7 Availability** | Always-on AI assistant | Business hours only | **Unlimited access** |
 
-### **Why Choose AutoDoc AI?**
+### **Why Choose Carsor AI?**
 
 #### 🎯 **For Vehicle Owners**
 - **Instant Diagnostics** - Get professional-grade analysis in seconds
@@ -145,8 +145,8 @@ Before installation, ensure your system meets these requirements:
 
 ### **1. Clone the Repository**
 ```bash
-git clone https://github.com/your-username/autodoc-ai.git
-cd autodoc-ai
+git clone https://github.com/your-username/carsor-ai.git
+cd carsor-ai
 ```
 
 ### **2. Install Dependencies**
@@ -170,8 +170,8 @@ nano .env.local
 ### **4. Required Environment Variables**
 ```env
 # Database Configuration
-MONGODB_URI=mongodb://localhost:27017/autodoc-ai
-MONGODB_DB=autodoc_ai
+MONGODB_URI=mongodb://localhost:27017/carsor-ai
+MONGODB_DB=carsor_ai
 
 # Authentication
 NEXTAUTH_URL=http://localhost:3000
@@ -207,7 +207,7 @@ Visit `http://localhost:3000` to see the application running.
 ## 🏗️ Project Structure
 
 ```
-autodoc-ai/
+carsor-ai/
 ├── 📁 app/                    # Next.js App Router
 │   ├── 📁 api/               # API Routes
 │   ├── 📁 auth/              # Authentication Pages
@@ -374,8 +374,8 @@ vercel --prod
 #### **Docker Deployment**
 ```dockerfile
 # Dockerfile included for containerization
-docker build -t autodoc-ai .
-docker run -p 3000:3000 autodoc-ai
+docker build -t carsor-ai .
+docker run -p 3000:3000 carsor-ai
 ```
 
 #### **Cloud Platforms**
@@ -430,55 +430,9 @@ docker run -p 3000:3000 autodoc-ai
 
 ---
 
-## 🤝 Contributing
-
-We welcome contributions from the community! Please follow our contribution guidelines:
-
-### **Development Workflow**
-```bash
-# 1. Fork the repository
-git fork https://github.com/your-username/autodoc-ai.git
-
-# 2. Create feature branch
-git checkout -b feature/amazing-feature
-
-# 3. Make your changes
-git commit -m "Add amazing feature"
-
-# 4. Push to branch
-git push origin feature/amazing-feature
-
-# 5. Open Pull Request
-```
-
-### **Contribution Guidelines**
-- Follow TypeScript and React best practices
-- Write comprehensive tests for new features
-- Update documentation for API changes
-- Follow conventional commit message format
-- Ensure code passes all linting and formatting checks
-
----
-
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2024 AutoDoc AI
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-```
 
 ---
 
@@ -495,21 +449,6 @@ copies or substantial portions of the Software.
 - **TypeScript** - Type-safe JavaScript development
 - **Radix UI** - Accessible component primitives
 - **Lucide React** - Beautiful icon library
-
----
-
-## 📞 Support & Contact
-
-### **Technical Support**
-- 📧 **Email**: support@autodoc-ai.com
-- 💬 **Discord**: [Join our community](https://discord.gg/autodoc-ai)
-- 📖 **Documentation**: [docs.autodoc-ai.com](https://docs.autodoc-ai.com)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-username/autodoc-ai/issues)
-
-### **Business Inquiries**
-- 🏢 **Enterprise Sales**: enterprise@autodoc-ai.com
-- 🤝 **Partnerships**: partnerships@autodoc-ai.com
-- 📰 **Media**: media@autodoc-ai.com
 
 ---
 
@@ -537,12 +476,8 @@ copies or substantial portions of the Software.
 
 <div align="center">
 
-**Built with ❤️ by the AutoDoc AI Team**
+**Built by the Carsor AI Team**
 
-*Revolutionizing automotive service through artificial intelligence*
-
-[![GitHub Stars](https://img.shields.io/github/stars/your-username/autodoc-ai?style=social)](https://github.com/your-username/autodoc-ai)
-[![Twitter Follow](https://img.shields.io/twitter/follow/autodoc_ai?style=social)](https://twitter.com/autodoc_ai)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?style=social&logo=linkedin)](https://linkedin.com/company/autodoc-ai)
+*"The future of automotive intelligence is not just about fixing problems - it's about preventing them before they happen."*
 
 </div>

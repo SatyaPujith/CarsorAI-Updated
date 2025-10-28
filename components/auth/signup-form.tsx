@@ -69,7 +69,7 @@ export default function SignupForm() {
               Create Account
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Join AutoDoc AI platform
+              Join Carsor AI platform
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">

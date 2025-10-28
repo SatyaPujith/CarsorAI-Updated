@@ -61,7 +61,7 @@ export default function SigninForm() {
               Welcome Back
             </CardTitle>
             <CardDescription className="text-gray-600">
-              Sign in to your AutoDoc AI account
+              Sign in to your Carsor AI account
             </CardDescription>
           </CardHeader>
           <CardContent className="p-6">
