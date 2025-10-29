@@ -1,4 +1,4 @@
-# 🚗 Carsor AI - Next-Generation Vehicle Intelligence Platform
+# Carsor AI - Next-Generation Vehicle Intelligence Platform
 
 <div align="center">
 
@@ -161,11 +161,9 @@ Carsor AI represents the **future of automotive service management**, combining 
 ### **Chrome Rewriter API Integration**
 ```javascript
 # Chrome AI Rewriter Configuration
-- API Token: A3nbADgL+c51FfmlFnUqM4cEcCpZj6Bq9vgheEPzxcH7K82y90/aDT2zNVOxeRdamLUD3Zf3aO+a/N/Ln6KSBAQAAACKeyJvcmlnaW4iOiJodHRwczovL2NhcnNvci1haS11cGRhdGVkLnZlcmNlbC5hcHA6NDQzIiwiZmVhdHVyZSI6IkFJUmV3cml0ZXJBUEkiLCJleHBpcnkiOjE3Njk0NzIwMDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9
 - Purpose: Simplifies complex AI-generated responses for better user understanding
 - Integration: Post-processes Gemini AI responses for enhanced readability
 - Domain: carsor-ai-updated.vercel.app
-- Expiry: 2026-01-26
 ```
 
 ---

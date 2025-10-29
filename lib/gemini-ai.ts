@@ -1,7 +1,6 @@
 import { rewriteForSimplicity } from './chrome-rewriter';
 
-const GEMINI_API_KEY = "AIzaSyBhenKndqe8PQXljU2d7rqguS316k2rID0";
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+const GEMINI_API_KEY = "AIzaSyAthgw4AxjXxY-VBOOlcOOvCe1NUR27jD0";
 
 export async function generateGeminiResponse(message: string, context?: string, userIssues?: any[]): Promise<string> {
   try {
@@ -43,10 +42,11 @@ User message: ${message}
 
 Provide analytical insights, data interpretation, and strategic recommendations based on automotive service data.`;
 
-      const response = await fetch(GEMINI_API_URL, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'X-goog-api-key': GEMINI_API_KEY,
         },
         body: JSON.stringify({
           contents: [{
@@ -117,10 +117,11 @@ User message: ${message}
 
 Provide helpful, accurate automotive guidance. If the user is asking about their previous issues, reference them appropriately.`;
 
-    const response = await fetch(GEMINI_API_URL, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-goog-api-key': GEMINI_API_KEY,
       },
       body: JSON.stringify({
         contents: [{
@@ -163,36 +164,31 @@ export async function analyzeVehicleIssue(description: string, vehicleModel: str
   estimatedCost: string;
 }> {
   try {
-    const prompt = `
-You are an expert automotive diagnostic AI specialist. Analyze the following vehicle issue:
+    const prompt = `Analyze this vehicle issue and respond with ONLY valid JSON:
 
-Vehicle Model: ${vehicleModel}
-Issue Description: ${description}
+Vehicle: ${vehicleModel}
+Issue: ${description}
 
-Please provide a comprehensive analysis in the following JSON format:
+Required JSON format:
 {
-  "formattedIssue": "A clear, professional description of the issue",
-  "category": "One of: Engine, Brakes, Electrical, AC/Heating, Suspension, Transmission, Body, Fuel System, Exhaust, Steering",
-  "severity": "low, medium, or high based on safety and urgency",
-  "suggestedActions": ["Array of 3-5 specific recommended actions"],
-  "possibleCauses": ["Array of 3-4 most likely causes"],
-  "urgencyLevel": "Immediate, Within 1 week, Within 1 month, or Routine maintenance",
-  "estimatedCost": "Rough cost estimate range in INR"
+  "formattedIssue": "${vehicleModel} - [brief issue summary]",
+  "category": "Engine",
+  "severity": "medium",
+  "suggestedActions": ["Action 1", "Action 2", "Action 3"],
+  "possibleCauses": ["Cause 1", "Cause 2", "Cause 3"],
+  "urgencyLevel": "Within 1 week",
+  "estimatedCost": "₹5,000 - ₹15,000"
 }
 
-Consider:
-- Safety implications
-- Vehicle-specific common issues
-- Severity based on potential damage or safety risk
-- Practical repair recommendations
-- Cost-effective solutions
+Categories: Engine, Brakes, Electrical, AC/Heating, Suspension, Transmission, Body, Fuel System, Exhaust, Steering
+Severity: low, medium, high
+Urgency: Immediate, Within 1 week, Within 1 month, Routine maintenance`;
 
-Respond only with valid JSON.`;
-
-    const response = await fetch(GEMINI_API_URL, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-goog-api-key': GEMINI_API_KEY,
       },
       body: JSON.stringify({
         contents: [{
@@ -227,30 +223,23 @@ Respond only with valid JSON.`;
 
     const analysis = JSON.parse(jsonMatch[0]);
 
-    // Simplify the AI response using Chrome Rewriter API
-    const simplifiedFormattedIssue = await rewriteForSimplicity(analysis.formattedIssue || `${vehicleModel} - ${description}`);
-    const simplifiedActions = Array.isArray(analysis.suggestedActions) 
-      ? await Promise.all(analysis.suggestedActions.map((action: string) => rewriteForSimplicity(action)))
-      : await Promise.all([
-          'Schedule inspection with authorized service center',
-          'Document any unusual sounds or behaviors',
-          'Check warranty coverage for this issue'
-        ].map(action => rewriteForSimplicity(action)));
-    
-    const simplifiedCauses = Array.isArray(analysis.possibleCauses)
-      ? await Promise.all(analysis.possibleCauses.map((cause: string) => rewriteForSimplicity(cause)))
-      : await Promise.all([
-          'Normal wear and tear',
-          'Component malfunction',
-          'Maintenance required'
-        ].map(cause => rewriteForSimplicity(cause)));
+    // Temporarily disable Chrome Rewriter to ensure AI analysis works first
+    const formattedIssue = analysis.formattedIssue || `${vehicleModel} - ${description}`;
 
     return {
-      formattedIssue: simplifiedFormattedIssue,
+      formattedIssue: formattedIssue,
       category: analysis.category || 'General',
       severity: ['low', 'medium', 'high'].includes(analysis.severity) ? analysis.severity : 'medium',
-      suggestedActions: simplifiedActions,
-      possibleCauses: simplifiedCauses,
+      suggestedActions: Array.isArray(analysis.suggestedActions) ? analysis.suggestedActions : [
+        'Schedule inspection with authorized service center',
+        'Document any unusual sounds or behaviors',
+        'Check warranty coverage for this issue'
+      ],
+      possibleCauses: Array.isArray(analysis.possibleCauses) ? analysis.possibleCauses : [
+        'Normal wear and tear',
+        'Component malfunction',
+        'Maintenance required'
+      ],
       urgencyLevel: analysis.urgencyLevel || 'Within 1 week',
       estimatedCost: analysis.estimatedCost || 'Contact service center for estimate'
     };

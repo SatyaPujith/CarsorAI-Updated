@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Mic, MicOff, Send, Loader2, AlertTriangle, Clock, CheckCircle, DollarSign, Upload, X, Check, Camera, Zap, Sparkles, ImageIcon } from 'lucide-react';
 import { processVoiceToText, formatIssueWithAI, analyzeImageWithAI } from '@/lib/ai-processor';
 import { commonIssues } from '@/lib/vehicle-models';
+import { rewriteForSimplicity } from '@/lib/chrome-rewriter';
 
 interface IssueFormProps {
   vehicleModel: string;
@@ -26,6 +27,7 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
   const [issueText, setIssueText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [simplifiedAnalysis, setSimplifiedAnalysis] = useState<any>(null);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAnalyzingImage, setIsAnalyzingImage] = useState(false);
@@ -33,6 +35,28 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Function to simplify AI analysis for display
+  const simplifyAnalysisForDisplay = async (analysis: any) => {
+    if (!analysis) return null;
+    
+    try {
+      const simplified = {
+        ...analysis,
+        formattedIssue: await rewriteForSimplicity(analysis.formattedIssue || ''),
+        possibleCauses: await Promise.all(
+          (analysis.possibleCauses || []).map((cause: string) => rewriteForSimplicity(cause))
+        ),
+        suggestedActions: await Promise.all(
+          (analysis.suggestedActions || []).map((action: string) => rewriteForSimplicity(action))
+        )
+      };
+      return simplified;
+    } catch (error) {
+      console.warn('Failed to simplify analysis, using original:', error);
+      return analysis;
+    }
+  };
 
   const startRecording = async () => {
     try {
@@ -54,6 +78,8 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
           setIssueText(transcribedText);
           const analysis = await formatIssueWithAI(transcribedText, vehicleModel);
           setAiAnalysis(analysis);
+          const simplified = await simplifyAnalysisForDisplay(analysis);
+          setSimplifiedAnalysis(simplified);
         } catch (error) {
           console.error('Voice processing failed:', error);
         } finally {
@@ -99,6 +125,8 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
         const analysis = await analyzeImageWithAI(file, vehicleModel || 'Unknown');
         setIssueText(analysis.description);
         setAiAnalysis(analysis);
+        const simplified = await simplifyAnalysisForDisplay(analysis);
+        setSimplifiedAnalysis(simplified);
       } catch (error) {
         console.error('Auto image analysis failed:', error);
         setAutoAnalyzed(false);
@@ -125,6 +153,8 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
       const analysis = await analyzeImageWithAI(uploadedImage, vehicleModel || 'Unknown');
       setIssueText(analysis.description);
       setAiAnalysis(analysis);
+      const simplified = await simplifyAnalysisForDisplay(analysis);
+      setSimplifiedAnalysis(simplified);
     } catch (error) {
       console.error('Image analysis failed:', error);
       alert('Failed to analyze image. Please try again.');
@@ -140,6 +170,8 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
     try {
       const analysis = await formatIssueWithAI(issueText, vehicleModel);
       setAiAnalysis(analysis);
+      const simplified = await simplifyAnalysisForDisplay(analysis);
+      setSimplifiedAnalysis(simplified);
     } catch (error) {
       console.error('AI processing failed:', error);
     } finally {
@@ -182,6 +214,7 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
           onSubmit(savedIssue);
           setIssueText('');
           setAiAnalysis(null);
+          setSimplifiedAnalysis(null);
           setSelectedCategory('');
           setUploadedImage(null);
           setImagePreview(null);
@@ -400,7 +433,7 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
         </div>
 
         {/* AI Analysis Results */}
-        {aiAnalysis && (
+        {(simplifiedAnalysis || aiAnalysis) && (
           <div className="bg-orange-50/50 border border-orange-200 rounded-2xl p-6 space-y-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-8 h-8 border-2 border-orange-500 rounded-full flex items-center justify-center">
@@ -411,24 +444,24 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
             
             <div>
               <Label className="text-sm font-semibold text-gray-800">Formatted Issue Description:</Label>
-              <p className="text-sm bg-white rounded-xl p-4 mt-2 text-gray-900 border border-orange-200">{aiAnalysis.formattedIssue}</p>
+              <p className="text-sm bg-white rounded-xl p-4 mt-2 text-gray-900 border border-orange-200">{(simplifiedAnalysis || aiAnalysis).formattedIssue}</p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label className="text-sm font-semibold text-gray-800">Category:</Label>
                 <div className="mt-2">
-                  <Badge className="bg-blue-100 border-blue-300 text-blue-800">{aiAnalysis.category}</Badge>
+                  <Badge className="bg-blue-100 border-blue-300 text-blue-800">{(simplifiedAnalysis || aiAnalysis).category}</Badge>
                 </div>
               </div>
               <div>
                 <Label className="text-sm font-semibold text-gray-800">Severity Level:</Label>
                 <div className="mt-2 flex items-center gap-2">
-                  {aiAnalysis.severity === 'high' && <AlertTriangle className="w-4 h-4 text-red-500" />}
-                  {aiAnalysis.severity === 'medium' && <Clock className="w-4 h-4 text-yellow-500" />}
-                  {aiAnalysis.severity === 'low' && <CheckCircle className="w-4 h-4 text-green-500" />}
-                  <Badge variant={aiAnalysis.severity === 'high' ? 'destructive' : aiAnalysis.severity === 'medium' ? 'default' : 'secondary'}>
-                    {aiAnalysis.severity.toUpperCase()}
+                  {(simplifiedAnalysis || aiAnalysis).severity === 'high' && <AlertTriangle className="w-4 h-4 text-red-500" />}
+                  {(simplifiedAnalysis || aiAnalysis).severity === 'medium' && <Clock className="w-4 h-4 text-yellow-500" />}
+                  {(simplifiedAnalysis || aiAnalysis).severity === 'low' && <CheckCircle className="w-4 h-4 text-green-500" />}
+                  <Badge variant={(simplifiedAnalysis || aiAnalysis).severity === 'high' ? 'destructive' : (simplifiedAnalysis || aiAnalysis).severity === 'medium' ? 'default' : 'secondary'}>
+                    {(simplifiedAnalysis || aiAnalysis).severity.toUpperCase()}
                   </Badge>
                 </div>
               </div>
@@ -437,21 +470,21 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <Label className="text-sm font-semibold text-gray-800">Urgency Level:</Label>
-                <p className="text-sm bg-white rounded-xl p-3 mt-2 font-medium text-gray-900 border border-orange-200">{aiAnalysis.urgencyLevel}</p>
+                <p className="text-sm bg-white rounded-xl p-3 mt-2 font-medium text-gray-900 border border-orange-200">{(simplifiedAnalysis || aiAnalysis).urgencyLevel}</p>
               </div>
               <div>
                 <Label className="text-sm font-semibold text-gray-800 flex items-center gap-1">
                   <DollarSign className="w-3 h-3" />
                   Estimated Cost:
                 </Label>
-                <p className="text-sm bg-white rounded-xl p-3 mt-2 font-medium text-gray-900 border border-orange-200">{aiAnalysis.estimatedCost}</p>
+                <p className="text-sm bg-white rounded-xl p-3 mt-2 font-medium text-gray-900 border border-orange-200">{(simplifiedAnalysis || aiAnalysis).estimatedCost}</p>
               </div>
             </div>
             
             <div>
               <Label className="text-sm font-semibold text-gray-800">Possible Causes:</Label>
               <ul className="text-sm list-disc list-inside space-y-2 bg-white rounded-xl p-4 mt-2 border border-orange-200">
-                {aiAnalysis.possibleCauses.map((cause: string, index: number) => (
+                {(simplifiedAnalysis || aiAnalysis).possibleCauses.map((cause: string, index: number) => (
                   <li key={index} className="text-gray-700">{cause}</li>
                 ))}
               </ul>
@@ -460,7 +493,7 @@ export default function IssueForm({ vehicleModel, onSubmit }: IssueFormProps) {
             <div>
               <Label className="text-sm font-semibold text-gray-800">Recommended Actions:</Label>
               <ul className="text-sm list-disc list-inside space-y-2 bg-white rounded-xl p-4 mt-2 border border-orange-200">
-                {aiAnalysis.suggestedActions.map((action: string, index: number) => (
+                {(simplifiedAnalysis || aiAnalysis).suggestedActions.map((action: string, index: number) => (
                   <li key={index} className="text-gray-700">{action}</li>
                 ))}
               </ul>

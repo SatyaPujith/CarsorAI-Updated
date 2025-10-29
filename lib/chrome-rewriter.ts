@@ -56,14 +56,24 @@ export async function simplifyTextServerSide(text: string): Promise<string> {
 
 // Main function that tries Chrome API first, then falls back to server-side
 export async function rewriteForSimplicity(text: string): Promise<string> {
-  // Try Chrome Rewriter API first (client-side)
-  if (typeof window !== 'undefined') {
-    const chromeResult = await simplifyTextWithChromeRewriter(text);
-    if (chromeResult !== text) {
-      return chromeResult;
-    }
+  // Return original text if empty or undefined
+  if (!text || text.trim().length === 0) {
+    return text;
   }
-  
-  // Fallback to server-side simplification
-  return await simplifyTextServerSide(text);
+
+  try {
+    // Try Chrome Rewriter API first (client-side)
+    if (typeof window !== 'undefined') {
+      const chromeResult = await simplifyTextWithChromeRewriter(text);
+      if (chromeResult && chromeResult !== text && chromeResult.trim().length > 0) {
+        return chromeResult;
+      }
+    }
+    
+    // Fallback to server-side simplification
+    return await simplifyTextServerSide(text);
+  } catch (error) {
+    console.warn('Text rewriting failed, using original text:', error);
+    return text;
+  }
 }

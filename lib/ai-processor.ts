@@ -12,49 +12,61 @@ export async function analyzeImageWithAI(imageFile: File, vehicleModel: string):
   estimatedCost: string;
 }> {
   try {
+    console.log('Starting image analysis for:', imageFile.name, 'Size:', imageFile.size, 'Type:', imageFile.type);
+    
+    // Validate image file
+    if (!imageFile.type.startsWith('image/')) {
+      throw new Error('Invalid file type. Please upload an image file.');
+    }
+    
+    // Check file size (limit to 10MB)
+    if (imageFile.size > 10 * 1024 * 1024) {
+      throw new Error('Image file too large. Please upload an image smaller than 10MB.');
+    }
+    
     // Convert image to base64
-    const base64Image = await new Promise<string>((resolve) => {
+    const base64Image = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result as string;
         resolve(result.split(',')[1]); // Remove data:image/jpeg;base64, prefix
       };
+      reader.onerror = () => reject(new Error('Failed to read image file'));
       reader.readAsDataURL(imageFile);
     });
+    
+    console.log('Image converted to base64, length:', base64Image.length);
 
-    const GEMINI_API_KEY = "AIzaSyBhenKndqe8PQXljU2d7rqguS316k2rID0";
-    const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const GEMINI_API_KEY = "AIzaSyAthgw4AxjXxY-VBOOlcOOvCe1NUR27jD0";
 
-    const prompt = `
-You are an expert automotive diagnostic AI specialist. Analyze this image of a vehicle issue and provide a comprehensive analysis.
+    const prompt = `Analyze this vehicle image and respond with ONLY valid JSON in this exact format:
 
-Vehicle Model: ${vehicleModel}
-
-Please analyze the image and provide a detailed response in the following JSON format:
 {
-  "description": "A detailed description of what you see in the image",
-  "formattedIssue": "A clear, professional description of the issue based on the image",
-  "category": "One of: Engine, Brakes, Electrical, AC/Heating, Suspension, Transmission, Body, Fuel System, Exhaust, Steering",
-  "severity": "low, medium, or high based on what you observe",
-  "suggestedActions": ["Array of 3-5 specific recommended actions based on the image"],
-  "possibleCauses": ["Array of 3-4 most likely causes based on visual evidence"],
-  "urgencyLevel": "Immediate, Within 1 week, Within 1 month, or Routine maintenance",
-  "estimatedCost": "Rough cost estimate range in INR based on the observed issue"
+  "description": "What you see in the image",
+  "formattedIssue": "${vehicleModel} - Brief issue description",
+  "category": "Body",
+  "severity": "medium",
+  "suggestedActions": ["Get professional inspection", "Document damage", "Check insurance coverage"],
+  "possibleCauses": ["Impact damage", "Collision", "Accident"],
+  "urgencyLevel": "Within 1 week",
+  "estimatedCost": "₹15,000 - ₹50,000"
 }
 
-Focus on:
-- What you can visually identify in the image
-- Safety implications of the observed issue
-- Vehicle-specific considerations
-- Practical repair recommendations
+Vehicle: ${vehicleModel}
+Analyze the damage and provide realistic repair estimates in Indian Rupees.`;
 
-Respond only with valid JSON.`;
-
-    const response = await fetch(GEMINI_API_URL, {
+    console.log('Making API call to Gemini...');
+    
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+    
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-goog-api-key': GEMINI_API_KEY,
       },
+      signal: controller.signal,
       body: JSON.stringify({
         contents: [{
           parts: [
@@ -70,60 +82,70 @@ Respond only with valid JSON.`;
           ]
         }],
         generationConfig: {
-          temperature: 0.3,
-          topK: 20,
-          topP: 0.8,
-          maxOutputTokens: 1024,
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
         }
       })
     });
+    
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
+      throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('Gemini API Response Data:', data);
     const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!aiResponse) {
+      console.error('No AI response found in:', data);
       throw new Error('No response from Gemini API');
     }
+
+    console.log('AI Response Text:', aiResponse);
 
     // Parse JSON response
     const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
+      console.error('No JSON found in AI response. Full response:', aiResponse);
       throw new Error('Invalid JSON response from AI');
     }
 
-    const analysis = JSON.parse(jsonMatch[0]);
+    let analysis;
+    try {
+      analysis = JSON.parse(jsonMatch[0]);
+      console.log('Successfully parsed analysis:', analysis);
+    } catch (parseError) {
+      console.error('Failed to parse JSON:', jsonMatch[0]);
+      throw new Error('Failed to parse AI response JSON');
+    }
     
-    // Simplify the AI response using Chrome Rewriter API
-    const simplifiedDescription = await rewriteForSimplicity(analysis.description || 'Image analysis completed');
-    const simplifiedFormattedIssue = await rewriteForSimplicity(analysis.formattedIssue || `${vehicleModel} - Issue identified from image`);
-    const simplifiedActions = Array.isArray(analysis.suggestedActions) 
-      ? await Promise.all(analysis.suggestedActions.map((action: string) => rewriteForSimplicity(action)))
-      : await Promise.all([
-          'Schedule inspection with authorized service center',
-          'Document the issue with photos',
-          'Check warranty coverage for this issue'
-        ].map(action => rewriteForSimplicity(action)));
-    
-    const simplifiedCauses = Array.isArray(analysis.possibleCauses)
-      ? await Promise.all(analysis.possibleCauses.map((cause: string) => rewriteForSimplicity(cause)))
-      : await Promise.all([
-          'Component wear and tear',
-          'Maintenance requirement',
-          'System malfunction'
-        ].map(cause => rewriteForSimplicity(cause)));
+    // Only apply Chrome Rewriter to descriptive text fields if they exist from AI
+    // Temporarily disable Chrome Rewriter to ensure AI analysis works first
+    const description = analysis.description || 'Image analysis completed';
+    const formattedIssue = analysis.formattedIssue || `${vehicleModel} - Issue identified from image`;
     
     // Validate and ensure proper format
     return {
-      description: simplifiedDescription,
-      formattedIssue: simplifiedFormattedIssue,
+      description: description,
+      formattedIssue: formattedIssue,
       category: analysis.category || 'General',
       severity: ['low', 'medium', 'high'].includes(analysis.severity) ? analysis.severity : 'medium',
-      suggestedActions: simplifiedActions,
-      possibleCauses: simplifiedCauses,
+      suggestedActions: Array.isArray(analysis.suggestedActions) ? analysis.suggestedActions : [
+        'Schedule inspection with authorized service center',
+        'Document the issue with photos',
+        'Check warranty coverage for this issue'
+      ],
+      possibleCauses: Array.isArray(analysis.possibleCauses) ? analysis.possibleCauses : [
+        'Component wear and tear',
+        'Maintenance requirement',
+        'System malfunction'
+      ],
       urgencyLevel: analysis.urgencyLevel || 'Within 1 week',
       estimatedCost: analysis.estimatedCost || 'Contact service center for estimate'
     };
@@ -131,25 +153,27 @@ Respond only with valid JSON.`;
   } catch (error) {
     console.error('Image analysis error:', error);
     
-    // Fallback analysis
+    // Enhanced fallback analysis based on common vehicle issues
     return {
-      description: 'Unable to analyze image automatically',
-      formattedIssue: `${vehicleModel} - Issue reported with image`,
-      category: 'General',
+      description: 'Image uploaded successfully. Professional analysis recommended for accurate diagnosis.',
+      formattedIssue: `${vehicleModel} - Vehicle issue reported with visual evidence`,
+      category: 'Body',
       severity: 'medium',
       suggestedActions: [
-        'Schedule inspection with authorized service center',
-        'Show the image to a qualified technician',
-        'Document any additional symptoms',
-        'Check warranty coverage'
+        'Visit authorized service center for detailed inspection',
+        'Show this image to a qualified automotive technician',
+        'Get written estimate for repair costs',
+        'Check if issue is covered under warranty',
+        'Document any additional symptoms or sounds'
       ],
       possibleCauses: [
-        'Visual inspection required',
-        'Component issue',
-        'Maintenance needed'
+        'Physical damage or wear',
+        'Component malfunction',
+        'Normal wear and tear',
+        'Environmental factors'
       ],
       urgencyLevel: 'Within 1 week',
-      estimatedCost: 'Contact service center for estimate'
+      estimatedCost: '₹5,000 - ₹25,000 (varies based on specific issue and parts required)'
     };
   }
 }
