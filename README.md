@@ -454,19 +454,19 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🗺️ Roadmap
 
-### **Q1 2024**
+### **Q1 2025**
 - [ ] Mobile application (iOS/Android)
 - [ ] Advanced predictive analytics
 - [ ] Multi-language support expansion
 - [ ] Integration with major OEM systems
 
-### **Q2 2024**
+### **Q2 2025**
 - [ ] Blockchain-based service records
 - [ ] IoT device integration
 - [ ] Advanced AR/VR diagnostics
 - [ ] Machine learning model improvements
 
-### **Q3 2024**
+### **Q3 2025**
 - [ ] Global marketplace launch
 - [ ] Enterprise API platform
 - [ ] Advanced reporting suite
