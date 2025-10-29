@@ -1,4 +1,4 @@
-# Carsor AI - Next-Generation Vehicle Intelligence Platform
+# Carsor AI - Vehicle Intelligence Platform
 
 <div align="center">
 
