@@ -25,7 +25,7 @@ import {
 import { signOut } from 'next-auth/react';
 
 interface MobileSidebarProps {
-  userType: 'vehicle_owner' | 'service_provider';
+  userType: 'vehicle_owner' | 'analytics_company';
   activeTab: string;
   onTabChange: (tab: string) => void;
   userName?: string;
@@ -151,7 +151,7 @@ export default function MobileSidebar({ userType, activeTab, onTabChange, userNa
                   variant="outline" 
                   className="text-xs border-cyan-400/30 text-cyan-300 bg-cyan-500/10"
                 >
-                  {userType === 'vehicle_owner' ? 'Vehicle Owner' : 'Service Provider'}
+                  {userType === 'vehicle_owner' ? 'Vehicle Owner' : 'Analytics Company'}
                 </Badge>
               </div>
             </div>

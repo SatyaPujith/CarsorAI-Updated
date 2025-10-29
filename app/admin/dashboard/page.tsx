@@ -31,12 +31,12 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [users, setUsers] = useState<User[]>([]);
-  const [serviceProviders, setServiceProviders] = useState<User[]>([]);
+  const [analyticsCompanies, setAnalyticsCompanies] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAddingProvider, setIsAddingProvider] = useState(false);
+  const [isAddingCompany, setIsAddingCompany] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [newProvider, setNewProvider] = useState({
+  const [newCompany, setNewCompany] = useState({
     name: '',
     email: '',
     password: '',
@@ -57,19 +57,19 @@ export default function AdminDashboard() {
 
   const fetchData = async () => {
     try {
-      const [usersRes, providersRes] = await Promise.all([
+      const [usersRes, companiesRes] = await Promise.all([
         fetch('/api/admin/users'),
         fetch('/api/admin/service-providers')
       ]);
-      
+
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         setUsers(usersData);
       }
-      
-      if (providersRes.ok) {
-        const providersData = await providersRes.json();
-        setServiceProviders(providersData);
+
+      if (companiesRes.ok) {
+        const companiesData = await companiesRes.json();
+        setAnalyticsCompanies(companiesData);
       }
     } catch (error) {
       console.error('Failed to fetch data:', error);
@@ -78,29 +78,29 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddProvider = async (e: React.FormEvent) => {
+  const handleAddCompany = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsAddingProvider(true);
+    setIsAddingCompany(true);
 
     try {
       const response = await fetch('/api/admin/service-providers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...newProvider, userType: 'service_provider' }),
+        body: JSON.stringify({ ...newCompany, userType: 'analytics_company' }),
       });
 
       if (response.ok) {
-        setNewProvider({ name: '', email: '', password: '', phone: '', companyName: '', serviceLocation: '' });
+        setNewCompany({ name: '', email: '', password: '', phone: '', companyName: '', serviceLocation: '' });
         fetchData();
-        alert('Service provider added successfully');
+        alert('Analytics company added successfully');
       } else {
         const error = await response.json();
-        alert(error.message || 'Failed to add service provider');
+        alert(error.message || 'Failed to add analytics company');
       }
     } catch (error) {
       alert('Network error occurred');
     } finally {
-      setIsAddingProvider(false);
+      setIsAddingCompany(false);
     }
   };
 
@@ -168,7 +168,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent">
-                  AutoDoc AI Admin
+                  Carsor AI Admin
                 </h1>
                 <p className="text-xs text-gray-500">System Administration</p>
               </div>
@@ -190,7 +190,7 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">System Administration</h2>
-          <p className="text-gray-600">Manage users, service providers, and system settings</p>
+          <p className="text-gray-600">Manage users, analytics companies, and system settings</p>
         </div>
 
         {/* Stats Cards */}
@@ -206,25 +206,25 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <Wrench className="w-8 h-8" />
                 <div>
-                  <p className="text-2xl font-bold">{serviceProviders.length}</p>
-                  <p className="text-green-100">Service Providers</p>
+                  <p className="text-2xl font-bold">{analyticsCompanies.length}</p>
+                  <p className="text-green-100">Analytics Companies</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <Shield className="w-8 h-8" />
                 <div>
-                  <p className="text-2xl font-bold">{users.length + serviceProviders.length}</p>
+                  <p className="text-2xl font-bold">{users.length + analyticsCompanies.length}</p>
                   <p className="text-purple-100">Total Users</p>
                 </div>
               </div>
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
         <Tabs defaultValue="users" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="users">Vehicle Owners</TabsTrigger>
-            <TabsTrigger value="providers">Service Providers</TabsTrigger>
+            <TabsTrigger value="providers">Analytics Companies</TabsTrigger>
             <TabsTrigger value="settings">System Settings</TabsTrigger>
           </TabsList>
 
@@ -293,8 +293,8 @@ export default function AdminDashboard() {
                             </form>
                           </DialogContent>
                         </Dialog>
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="destructive"
                           size="sm"
                           onClick={() => handleDeleteUser(user._id, 'vehicle_owner')}
                         >
@@ -311,30 +311,30 @@ export default function AdminDashboard() {
           <TabsContent value="providers">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Service Providers Management</CardTitle>
+                <CardTitle>Analytics Companies Management</CardTitle>
                 <Dialog>
                   <DialogTrigger asChild>
                     <Button className="bg-green-600 hover:bg-green-700">
                       <Plus className="w-4 h-4 mr-2" />
-                      Add Service Provider
+                      Add Analytics Company
                     </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Add New Service Provider</DialogTitle>
+                      <DialogTitle>Add New Analytics Company</DialogTitle>
                       <DialogDescription>
-                        Create a new service provider account
+                        Create a new analytics company account
                       </DialogDescription>
                     </DialogHeader>
-                    <form onSubmit={handleAddProvider} className="space-y-4">
+                    <form onSubmit={handleAddCompany} className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="name">Full Name</Label>
                           <Input
                             id="name"
                             required
-                            value={newProvider.name}
-                            onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })}
+                            value={newCompany.name}
+                            onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })}
                           />
                         </div>
                         <div>
@@ -342,8 +342,8 @@ export default function AdminDashboard() {
                           <Input
                             id="phone"
                             required
-                            value={newProvider.phone}
-                            onChange={(e) => setNewProvider({ ...newProvider, phone: e.target.value })}
+                            value={newCompany.phone}
+                            onChange={(e) => setNewCompany({ ...newCompany, phone: e.target.value })}
                           />
                         </div>
                       </div>
@@ -353,8 +353,8 @@ export default function AdminDashboard() {
                           id="email"
                           type="email"
                           required
-                          value={newProvider.email}
-                          onChange={(e) => setNewProvider({ ...newProvider, email: e.target.value })}
+                          value={newCompany.email}
+                          onChange={(e) => setNewCompany({ ...newCompany, email: e.target.value })}
                         />
                       </div>
                       <div>
@@ -365,8 +365,8 @@ export default function AdminDashboard() {
                             type={showPassword ? "text" : "password"}
                             required
                             minLength={8}
-                            value={newProvider.password}
-                            onChange={(e) => setNewProvider({ ...newProvider, password: e.target.value })}
+                            value={newCompany.password}
+                            onChange={(e) => setNewCompany({ ...newCompany, password: e.target.value })}
                           />
                           <Button
                             type="button"
@@ -384,8 +384,8 @@ export default function AdminDashboard() {
                         <Input
                           id="companyName"
                           required
-                          value={newProvider.companyName}
-                          onChange={(e) => setNewProvider({ ...newProvider, companyName: e.target.value })}
+                          value={newCompany.companyName}
+                          onChange={(e) => setNewCompany({ ...newCompany, companyName: e.target.value })}
                         />
                       </div>
                       <div>
@@ -394,12 +394,12 @@ export default function AdminDashboard() {
                           id="serviceLocation"
                           required
                           placeholder="City, State"
-                          value={newProvider.serviceLocation}
-                          onChange={(e) => setNewProvider({ ...newProvider, serviceLocation: e.target.value })}
+                          value={newCompany.serviceLocation}
+                          onChange={(e) => setNewCompany({ ...newCompany, serviceLocation: e.target.value })}
                         />
                       </div>
-                      <Button type="submit" className="w-full" disabled={isAddingProvider}>
-                        {isAddingProvider ? 'Adding...' : 'Add Service Provider'}
+                      <Button type="submit" className="w-full" disabled={isAddingCompany}>
+                        {isAddingCompany ? 'Adding...' : 'Add Analytics Company'}
                       </Button>
                     </form>
                   </DialogContent>
@@ -407,13 +407,13 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {serviceProviders.map((provider) => (
-                    <div key={provider._id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+                  {analyticsCompanies.map((company) => (
+                    <div key={company._id} className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
                       <div className="flex-1">
-                        <h4 className="font-medium">{provider.name}</h4>
-                        <p className="text-sm text-gray-600">{provider.email}</p>
+                        <h4 className="font-medium">{company.name}</h4>
+                        <p className="text-sm text-gray-600">{company.email}</p>
                         <p className="text-sm text-gray-500">
-                          {provider.companyName} • {provider.serviceLocation}
+                          {company.companyName} • {company.serviceLocation}
                         </p>
                       </div>
                       <div className="flex gap-2">
@@ -427,14 +427,14 @@ export default function AdminDashboard() {
                             <DialogHeader>
                               <DialogTitle>Reset Password</DialogTitle>
                               <DialogDescription>
-                                Enter a new password for {provider.name}
+                                Enter a new password for {company.name}
                               </DialogDescription>
                             </DialogHeader>
                             <form onSubmit={(e) => {
                               e.preventDefault();
                               const formData = new FormData(e.target as HTMLFormElement);
                               const newPassword = formData.get('password') as string;
-                              handleUpdatePassword(provider._id, newPassword);
+                              handleUpdatePassword(company._id, newPassword);
                             }}>
                               <div className="space-y-4">
                                 <div>
@@ -454,10 +454,10 @@ export default function AdminDashboard() {
                             </form>
                           </DialogContent>
                         </Dialog>
-                        <Button 
-                          variant="destructive" 
+                        <Button
+                          variant="destructive"
                           size="sm"
-                          onClick={() => handleDeleteUser(provider._id, 'service_provider')}
+                          onClick={() => handleDeleteUser(company._id, 'analytics_company')}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -480,12 +480,12 @@ export default function AdminDashboard() {
                     <h4 className="font-medium text-blue-900 mb-2">Database Status</h4>
                     <p className="text-sm text-blue-700">Connected to MongoDB</p>
                   </div>
-                  
+
                   <div className="p-4 border rounded-lg bg-green-50">
                     <h4 className="font-medium text-green-900 mb-2">Authentication</h4>
                     <p className="text-sm text-green-700">NextAuth.js configured and running</p>
                   </div>
-                  
+
                   <div className="p-4 border rounded-lg bg-purple-50">
                     <h4 className="font-medium text-purple-900 mb-2">AI Services</h4>
                     <p className="text-sm text-purple-700">Voice processing and AI analysis active</p>

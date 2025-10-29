@@ -107,6 +107,7 @@ export default function DashboardPage() {
   }
 
   const isVehicleOwner = (session.user as any)?.userType === 'vehicle_owner';
+  const isAnalyticsCompany = (session.user as any)?.userType === 'analytics_company';
   const isAdmin = (session.user as any)?.userType === 'admin';
 
   // Redirect admin to admin dashboard
@@ -121,7 +122,7 @@ export default function DashboardPage() {
     { id: 'profile', label: 'Profile', icon: <User className="w-5 h-5" />, component: null },
   ];
 
-  const serviceProviderTabs = [
+  const analyticsCompanyTabs = [
     { id: 'overview', label: 'Overview', icon: <Home className="w-5 h-5" /> },
     { id: 'vehicle-models', label: 'Vehicle Models', icon: <Car className="w-5 h-5" /> },
     { id: 'manufacturing', label: 'Manufacturing', icon: <Activity className="w-5 h-5" /> },
@@ -130,7 +131,7 @@ export default function DashboardPage() {
     { id: 'geographic', label: 'Geographic', icon: <Globe className="w-5 h-5" /> },
   ];
 
-  const tabs = isVehicleOwner ? vehicleOwnerTabs : serviceProviderTabs;
+  const tabs = isVehicleOwner ? vehicleOwnerTabs : analyticsCompanyTabs;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-gray-50 to-orange-50 relative overflow-hidden">
@@ -145,7 +146,7 @@ export default function DashboardPage() {
 
       {/* Mobile Sidebar */}
       <MobileSidebar
-        userType={isVehicleOwner ? 'vehicle_owner' : 'service_provider'}
+        userType={isVehicleOwner ? 'vehicle_owner' : 'analytics_company'}
         activeTab={activeTab}
         onTabChange={handleTabChange}
         userName={session.user?.name ?? undefined}
@@ -182,7 +183,7 @@ export default function DashboardPage() {
                     variant="outline" 
                     className="text-xs border-orange-500 text-orange-700 bg-white mt-1"
                   >
-                    {isVehicleOwner ? 'Vehicle Owner' : 'Service Provider'}
+                    {isVehicleOwner ? 'Vehicle Owner' : 'Analytics Company'}
                   </Badge>
                 </div>
               </div>

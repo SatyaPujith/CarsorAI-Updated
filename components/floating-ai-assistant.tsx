@@ -9,14 +9,14 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { 
-  Bot, 
-  User, 
-  Send, 
-  MessageSquare, 
-  Plus, 
-  History, 
-  X, 
+import {
+  Bot,
+  User,
+  Send,
+  MessageSquare,
+  Plus,
+  History,
+  X,
   Minimize2,
   Maximize2,
   Sparkles,
@@ -53,7 +53,7 @@ export default function FloatingAIAssistant() {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const isServiceProvider = (session?.user as any)?.userType === 'service_provider';
+  const isAnalyticsCompany = (session?.user as any)?.userType === 'analytics_company';
 
   useEffect(() => {
     if (isOpen && !conversationId) {
@@ -90,11 +90,11 @@ export default function FloatingAIAssistant() {
   const startNewChat = () => {
     const newConversationId = new Date().getTime().toString();
     setConversationId(newConversationId);
-    
-    const welcomeMessage = isServiceProvider ? 
-      'Hello! I\'m your intelligent analytics assistant powered by AutoDoc AI. I can help you analyze vehicle data, interpret trends, understand manufacturing insights, generate reports, and provide strategic recommendations based on your analytics dashboard. How can I assist you today?' :
-      'Hello! I\'m your intelligent vehicle AI assistant powered by AutoDoc AI. I can help you with vehicle maintenance, troubleshooting, service schedules, and analyze your reported issues. How can I assist you today?';
-    
+
+    const welcomeMessage = isAnalyticsCompany ?
+      'Hello! I\'m your intelligent analytics assistant powered by Carsor AI. I can help you analyze vehicle data, interpret trends, understand manufacturing insights, generate reports, and provide strategic recommendations based on your analytics dashboard. How can I assist you today?' :
+      'Hello! I\'m your intelligent vehicle AI assistant powered by Carsor AI. I can help you with vehicle maintenance, troubleshooting, service schedules, and analyze your reported issues. How can I assist you today?';
+
     setMessages([{
       id: '1',
       text: welcomeMessage,
@@ -147,7 +147,7 @@ export default function FloatingAIAssistant() {
         body: JSON.stringify({
           message: userMessage.text,
           conversationId: conversationId,
-          userType: isServiceProvider ? 'service_provider' : 'vehicle_owner'
+          userType: isAnalyticsCompany ? 'analytics_company' : 'vehicle_owner'
         }),
       });
 
@@ -156,7 +156,7 @@ export default function FloatingAIAssistant() {
       }
 
       const data = await response.json();
-      
+
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: data.response,
@@ -165,21 +165,21 @@ export default function FloatingAIAssistant() {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      
+
       if (data.conversationId && !conversationId) {
         setConversationId(data.conversationId);
       }
 
     } catch (error) {
       console.error('Failed to send message:', error);
-      
+
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         text: 'I apologize, but I\'m experiencing technical difficulties. Please try again in a moment.',
         sender: 'bot',
         timestamp: new Date(),
       };
-      
+
       setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsTyping(false);
@@ -196,7 +196,7 @@ export default function FloatingAIAssistant() {
   const getConversationTitle = (conv: Conversation) => {
     if (conv.title) return conv.title;
     const firstUserMessage = conv.messages.find(m => m.sender === 'user');
-    return firstUserMessage ? 
+    return firstUserMessage ?
       firstUserMessage.text.substring(0, 30) + (firstUserMessage.text.length > 30 ? '...' : '') :
       'New Conversation';
   };
@@ -210,7 +210,7 @@ export default function FloatingAIAssistant() {
           size="icon"
         >
           <div className="relative">
-            {isServiceProvider ? <BarChart3 className="w-6 h-6 text-gray-700 hover:text-white transition-colors" /> : <Bot className="w-6 h-6 text-gray-700 hover:text-white transition-colors" />}
+            {isAnalyticsCompany ? <BarChart3 className="w-6 h-6 text-gray-700 hover:text-white transition-colors" /> : <Bot className="w-6 h-6 text-gray-700 hover:text-white transition-colors" />}
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           </div>
         </Button>
@@ -220,28 +220,27 @@ export default function FloatingAIAssistant() {
 
   return (
     <>
-      <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
-        isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
-      } max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]`}>
+      <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${isMinimized ? 'w-80 h-16' : 'w-96 h-[600px]'
+        } max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]`}>
         <Card className="h-full flex flex-col bg-white backdrop-blur-md border-2 border-orange-200 shadow-lg overflow-hidden">
           <CardHeader className="pb-2 bg-white border-b border-orange-200 text-black flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="relative">
                   <div className="w-8 h-8 border-2 border-orange-300 rounded-full flex items-center justify-center">
-                    {isServiceProvider ? <BarChart3 className="w-5 h-5 text-orange-600" /> : <Bot className="w-5 h-5 text-orange-600" />}
+                    {isAnalyticsCompany ? <BarChart3 className="w-5 h-5 text-orange-600" /> : <Bot className="w-5 h-5 text-orange-600" />}
                   </div>
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-bold truncate text-black">
-                      {isServiceProvider ? 'Analytics AI' : 'Vehicle AI Assistant'}
+                      {isAnalyticsCompany ? 'Analytics AI' : 'Vehicle AI Assistant'}
                     </span>
                     <Sparkles className="w-3 h-3 text-orange-500 flex-shrink-0" />
                   </div>
                   <p className="text-xs text-black font-normal">
-                    {isServiceProvider ? 'Data Analytics Expert' : 'Powered by Gemini AI'}
+                    {isAnalyticsCompany ? 'Data Analytics Expert' : 'Powered by Gemini AI'}
                   </p>
                 </div>
               </div>
@@ -281,7 +280,7 @@ export default function FloatingAIAssistant() {
               </div>
             </div>
           </CardHeader>
-          
+
           {!isMinimized && (
             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
               {showHistory ? (
@@ -293,8 +292,8 @@ export default function FloatingAIAssistant() {
                         <p className="text-gray-500 text-sm text-center py-8">No chat history yet</p>
                       ) : (
                         conversations.map((conv) => (
-                          <Card 
-                            key={conv._id} 
+                          <Card
+                            key={conv._id}
                             className="cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200"
                             onClick={() => loadConversation(conv.conversationId)}
                           >
@@ -339,21 +338,19 @@ export default function FloatingAIAssistant() {
                             {message.sender === 'bot' && (
                               <Avatar className="w-6 h-6 border border-orange-200 flex-shrink-0">
                                 <AvatarFallback className="bg-white border border-orange-300 text-orange-600 text-xs">
-                                  {isServiceProvider ? <BarChart3 className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
+                                  {isAnalyticsCompany ? <BarChart3 className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
                                 </AvatarFallback>
                               </Avatar>
                             )}
                             <div
-                              className={`max-w-[75%] rounded-lg px-3 py-2 text-xs shadow-sm break-words ${
-                                message.sender === 'user'
-                                  ? 'bg-orange-500 text-white rounded-br-sm'
-                                  : 'bg-gray-100 text-black border border-gray-200 rounded-bl-sm'
-                              }`}
+                              className={`max-w-[75%] rounded-lg px-3 py-2 text-xs shadow-sm break-words ${message.sender === 'user'
+                                ? 'bg-orange-500 text-white rounded-br-sm'
+                                : 'bg-gray-100 text-black border border-gray-200 rounded-bl-sm'
+                                }`}
                             >
                               <p className="leading-relaxed whitespace-pre-wrap">{message.text}</p>
-                              <p className={`text-xs mt-1 ${
-                                message.sender === 'user' ? 'text-orange-100' : 'text-gray-500'
-                              }`}>
+                              <p className={`text-xs mt-1 ${message.sender === 'user' ? 'text-orange-100' : 'text-gray-500'
+                                }`}>
                                 {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </p>
                             </div>
@@ -371,7 +368,7 @@ export default function FloatingAIAssistant() {
                         <div className="flex gap-2 justify-start">
                           <Avatar className="w-6 h-6 border border-orange-200 flex-shrink-0">
                             <AvatarFallback className="bg-white border border-orange-300 text-orange-600 text-xs">
-                              {isServiceProvider ? <BarChart3 className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
+                              {isAnalyticsCompany ? <BarChart3 className="w-3 h-3" /> : <Bot className="w-3 h-3" />}
                             </AvatarFallback>
                           </Avatar>
                           <div className="bg-gray-100 rounded-lg rounded-bl-sm px-3 py-2 text-xs border border-gray-200 shadow-sm">
@@ -389,11 +386,11 @@ export default function FloatingAIAssistant() {
                       <div ref={messagesEndRef} />
                     </div>
                   </ScrollArea>
-                  
+
                   <div className="p-3 border-t bg-gray-50/50 backdrop-blur-sm flex-shrink-0">
                     <div className="flex gap-2">
                       <Input
-                        placeholder={isServiceProvider ? "Ask about analytics data..." : "Ask about your vehicle..."}
+                        placeholder={isAnalyticsCompany ? "Ask about analytics data..." : "Ask about your vehicle..."}
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyPress={handleKeyPress}
@@ -401,8 +398,8 @@ export default function FloatingAIAssistant() {
                         disabled={isTyping}
                         maxLength={500}
                       />
-                      <Button 
-                        onClick={sendMessage} 
+                      <Button
+                        onClick={sendMessage}
                         disabled={!input.trim() || isTyping}
                         className="bg-white border border-orange-300 hover:bg-orange-500 hover:border-orange-500 text-gray-700 hover:text-white rounded-lg px-3 shadow-sm flex-shrink-0 h-8 transition-all duration-200"
                         size="sm"
@@ -412,7 +409,7 @@ export default function FloatingAIAssistant() {
                     </div>
                     <div className="flex items-center justify-between mt-1">
                       <p className="text-xs text-gray-500">
-                        {isServiceProvider ? 'Analytics AI Assistant' : 'Powered by AutoDoc AI'}
+                        {isAnalyticsCompany ? 'Analytics AI Assistant' : 'Powered by Carsor AI'}
                       </p>
                       <p className="text-xs text-gray-400">
                         {input.length}/500
