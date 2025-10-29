@@ -1,4 +1,5 @@
 import { analyzeVehicleIssue } from './gemini-ai';
+import { rewriteForSimplicity } from './chrome-rewriter';
 
 export async function analyzeImageWithAI(imageFile: File, vehicleModel: string): Promise<{
   description: string;
@@ -96,22 +97,33 @@ Respond only with valid JSON.`;
 
     const analysis = JSON.parse(jsonMatch[0]);
     
+    // Simplify the AI response using Chrome Rewriter API
+    const simplifiedDescription = await rewriteForSimplicity(analysis.description || 'Image analysis completed');
+    const simplifiedFormattedIssue = await rewriteForSimplicity(analysis.formattedIssue || `${vehicleModel} - Issue identified from image`);
+    const simplifiedActions = Array.isArray(analysis.suggestedActions) 
+      ? await Promise.all(analysis.suggestedActions.map((action: string) => rewriteForSimplicity(action)))
+      : await Promise.all([
+          'Schedule inspection with authorized service center',
+          'Document the issue with photos',
+          'Check warranty coverage for this issue'
+        ].map(action => rewriteForSimplicity(action)));
+    
+    const simplifiedCauses = Array.isArray(analysis.possibleCauses)
+      ? await Promise.all(analysis.possibleCauses.map((cause: string) => rewriteForSimplicity(cause)))
+      : await Promise.all([
+          'Component wear and tear',
+          'Maintenance requirement',
+          'System malfunction'
+        ].map(cause => rewriteForSimplicity(cause)));
+    
     // Validate and ensure proper format
     return {
-      description: analysis.description || 'Image analysis completed',
-      formattedIssue: analysis.formattedIssue || `${vehicleModel} - Issue identified from image`,
+      description: simplifiedDescription,
+      formattedIssue: simplifiedFormattedIssue,
       category: analysis.category || 'General',
       severity: ['low', 'medium', 'high'].includes(analysis.severity) ? analysis.severity : 'medium',
-      suggestedActions: Array.isArray(analysis.suggestedActions) ? analysis.suggestedActions : [
-        'Schedule inspection with authorized service center',
-        'Document the issue with photos',
-        'Check warranty coverage for this issue'
-      ],
-      possibleCauses: Array.isArray(analysis.possibleCauses) ? analysis.possibleCauses : [
-        'Component wear and tear',
-        'Maintenance requirement',
-        'System malfunction'
-      ],
+      suggestedActions: simplifiedActions,
+      possibleCauses: simplifiedCauses,
       urgencyLevel: analysis.urgencyLevel || 'Within 1 week',
       estimatedCost: analysis.estimatedCost || 'Contact service center for estimate'
     };

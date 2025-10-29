@@ -11,8 +11,9 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-7.0-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
 [![Google AI](https://img.shields.io/badge/Google%20AI-Gemini-4285F4?style=flat-square&logo=google)](https://ai.google.dev/)
+[![Chrome AI](https://img.shields.io/badge/Chrome%20AI-Rewriter%20API-FF6B35?style=flat-square&logo=google-chrome)](https://developer.chrome.com/)
 
-[� Diocumentation](#installation) • [🎯 Features](#key-features) • [🛠️ Installation](#installation)
+[🚀 Live Demo](https://carsor-ai-updated.vercel.app) • [📖 Documentation](#installation) • [🎯 Features](#key-features) • [🛠️ Installation](#installation)
 
 </div>
 
@@ -25,6 +26,29 @@ Carsor AI represents the **future of automotive service management**, combining 
 ### 🎯 Mission Statement
 
 *"To democratize automotive expertise through AI, making professional vehicle diagnostics accessible to everyone while empowering analytics companies with comprehensive data insights for market intelligence and research."*
+
+---
+
+## 🎮 Live Demo & Test Credentials
+
+**🌐 Live Application**: [https://carsor-ai-updated.vercel.app](https://carsor-ai-updated.vercel.app)
+
+### **Test Accounts**
+
+#### 🚗 **Vehicle Owner Account**
+- **Email**: `owner@example.com`
+- **Password**: `Password@1234`
+- **Access**: Vehicle dashboard, issue reporting, AI diagnostics
+
+#### 📊 **Analytics Company Account**
+- **Email**: `company@example.com`
+- **Password**: `Password@1234`
+- **Access**: Analytics dashboard, market insights, data visualization
+
+#### 🛡️ **Administrator Account**
+- **Email**: `test@example.com`
+- **Password**: `Password@1234`
+- **Access**: Full system administration, user management
 
 ---
 
@@ -41,6 +65,12 @@ Carsor AI represents the **future of automotive service management**, combining 
 - **Multi-Language Support** - Global accessibility with localized understanding
 - **Noise Filtering Technology** - Clear audio processing in any environment
 - **Voice-to-Text Conversion** - Seamless documentation of verbal reports
+
+### ✍️ **Intelligent Text Rewriting**
+- **Chrome Rewriter API Integration** - Simplifies complex AI responses automatically
+- **Enhanced Readability** - Converts technical jargon into user-friendly language
+- **Context-Aware Simplification** - Maintains accuracy while improving comprehension
+- **Real-Time Processing** - Instant text optimization for better user experience
 
 ### 📊 **Enterprise Analytics Dashboard**
 - **Real-Time Data Visualization** - Interactive charts and performance metrics
@@ -66,7 +96,7 @@ Carsor AI represents the **future of automotive service management**, combining 
 | **Response Time** | < 2 seconds | 5-15 minutes | **750% faster** |
 | **Multi-Modal Input** | Voice + Image + Text | Text only | **3x input methods** |
 | **Predictive Analytics** | Advanced ML forecasting | Basic reporting | **Proactive vs Reactive** |
-| **User Experience** | Intuitive AI interface | Complex forms | **90% easier to use** |
+| **User Experience** | Intuitive AI interface + Chrome Rewriter | Complex forms | **90% easier to use** |
 | **Cost Efficiency** | 40% reduction in service time | Standard rates | **Significant savings** |
 | **24/7 Availability** | Always-on AI assistant | Business hours only | **Unlimited access** |
 
@@ -120,11 +150,22 @@ Carsor AI represents the **future of automotive service management**, combining 
 ```python
 # Advanced AI Capabilities
 - Primary AI: Google Gemini Pro
+- Text Rewriting: Chrome Rewriter API for simplified responses
 - Voice Processing: Web Speech API + Custom NLP
 - Image Analysis: Computer Vision algorithms
 - Predictive Models: Time-series forecasting
 - Natural Language: Multi-language understanding
 - Sentiment Analysis: Customer satisfaction tracking
+```
+
+### **Chrome Rewriter API Integration**
+```javascript
+# Chrome AI Rewriter Configuration
+- API Token: A3nbADgL+c51FfmlFnUqM4cEcCpZj6Bq9vgheEPzxcH7K82y90/aDT2zNVOxeRdamLUD3Zf3aO+a/N/Ln6KSBAQAAACKeyJvcmlnaW4iOiJodHRwczovL2NhcnNvci1haS11cGRhdGVkLnZlcmNlbC5hcHA6NDQzIiwiZmVhdHVyZSI6IkFJUmV3cml0ZXJBUEkiLCJleHBpcnkiOjE3Njk0NzIwMDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9
+- Purpose: Simplifies complex AI-generated responses for better user understanding
+- Integration: Post-processes Gemini AI responses for enhanced readability
+- Domain: carsor-ai-updated.vercel.app
+- Expiry: 2026-01-26
 ```
 
 ---
@@ -258,7 +299,7 @@ carsor-ai/
 3. Generates diagnostic report with:
    - Problem identification
    - Severity assessment
-   - Repair recommendations
+   - Repair recommendations (simplified using Chrome Rewriter API)
    - Cost estimates
    - Maintenance recommendations
 ```

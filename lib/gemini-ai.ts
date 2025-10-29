@@ -1,3 +1,5 @@
+import { rewriteForSimplicity } from './chrome-rewriter';
+
 const GEMINI_API_KEY = "AIzaSyBhenKndqe8PQXljU2d7rqguS316k2rID0";
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
@@ -66,7 +68,11 @@ Provide analytical insights, data interpretation, and strategic recommendations 
       }
 
       const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your analytics request. Please try again.';
+      const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your analytics request. Please try again.';
+      
+      // Simplify the response using Chrome Rewriter API
+      const simplifiedResponse = await rewriteForSimplicity(aiResponse);
+      return simplifiedResponse;
     }
     
     // Vehicle owner responses (existing logic)
@@ -136,7 +142,11 @@ Provide helpful, accurate automotive guidance. If the user is asking about their
     }
 
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
+    const aiResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || 'I apologize, but I encountered an issue processing your request. Please try again.';
+    
+    // Simplify the response using Chrome Rewriter API
+    const simplifiedResponse = await rewriteForSimplicity(aiResponse);
+    return simplifiedResponse;
   } catch (error) {
     console.error('Gemini API error:', error);
     return 'I\'m currently experiencing technical difficulties. Please try again in a moment or contact support if the issue persists.';
@@ -217,20 +227,30 @@ Respond only with valid JSON.`;
 
     const analysis = JSON.parse(jsonMatch[0]);
 
+    // Simplify the AI response using Chrome Rewriter API
+    const simplifiedFormattedIssue = await rewriteForSimplicity(analysis.formattedIssue || `${vehicleModel} - ${description}`);
+    const simplifiedActions = Array.isArray(analysis.suggestedActions) 
+      ? await Promise.all(analysis.suggestedActions.map((action: string) => rewriteForSimplicity(action)))
+      : await Promise.all([
+          'Schedule inspection with authorized service center',
+          'Document any unusual sounds or behaviors',
+          'Check warranty coverage for this issue'
+        ].map(action => rewriteForSimplicity(action)));
+    
+    const simplifiedCauses = Array.isArray(analysis.possibleCauses)
+      ? await Promise.all(analysis.possibleCauses.map((cause: string) => rewriteForSimplicity(cause)))
+      : await Promise.all([
+          'Normal wear and tear',
+          'Component malfunction',
+          'Maintenance required'
+        ].map(cause => rewriteForSimplicity(cause)));
+
     return {
-      formattedIssue: analysis.formattedIssue || `${vehicleModel} - ${description}`,
+      formattedIssue: simplifiedFormattedIssue,
       category: analysis.category || 'General',
       severity: ['low', 'medium', 'high'].includes(analysis.severity) ? analysis.severity : 'medium',
-      suggestedActions: Array.isArray(analysis.suggestedActions) ? analysis.suggestedActions : [
-        'Schedule inspection with authorized service center',
-        'Document any unusual sounds or behaviors',
-        'Check warranty coverage for this issue'
-      ],
-      possibleCauses: Array.isArray(analysis.possibleCauses) ? analysis.possibleCauses : [
-        'Normal wear and tear',
-        'Component malfunction',
-        'Maintenance required'
-      ],
+      suggestedActions: simplifiedActions,
+      possibleCauses: simplifiedCauses,
       urgencyLevel: analysis.urgencyLevel || 'Within 1 week',
       estimatedCost: analysis.estimatedCost || 'Contact service center for estimate'
     };
