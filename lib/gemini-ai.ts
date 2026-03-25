@@ -1,6 +1,6 @@
 import { rewriteForSimplicity } from './chrome-rewriter';
 
-const GEMINI_API_KEY = "AIzaSyAthgw4AxjXxY-VBOOlcOOvCe1NUR27jD0";
+const GEMINI_API_KEY = "AIzaSyCoFe3wqHj4Nlerj4_7r18w4pzSdpSm3C0";
 
 export async function generateGeminiResponse(message: string, context?: string, userIssues?: any[]): Promise<string> {
   try {
